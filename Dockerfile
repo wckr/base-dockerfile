@@ -66,7 +66,7 @@ RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/
 #
 ENV WWW=/var/www
 ENV DOCROOT=${WWW}/wordpress
-ADD wp-cli.yml ${WWW}
 RUN mkdir -p ${DOCROOT} \
   && adduser --uid 1000 --gecos '' --disabled-password wocker \
   && sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+ADD wp-cli.yml ${WWW}
