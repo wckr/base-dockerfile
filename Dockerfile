@@ -3,10 +3,6 @@ FROM debian:stretch-slim
 
 MAINTAINER ixkaito <ixkaito@gmail.com>
 
-ENV BIN=/usr/local/bin
-ENV WWW=/var/www
-ENV DOCROOT=${WWW}/wordpress
-
 RUN apt-get update \
   && apt-get clean \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -31,11 +27,7 @@ RUN apt-get update \
     supervisor \
   && rm -rf /var/lib/apt/lists/*
 
-#
-# `mysqld_safe` patch
-# @see https://github.com/wckr/wocker/pull/28#issuecomment-195945765
-#
-RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
+ENV BIN=/usr/local/bin
 
 #
 # Copy Ruby and Gem binary
@@ -73,9 +65,18 @@ RUN curl -o ${BIN}/mailhog -L https://github.com/mailhog/MailHog/releases/downlo
 ADD xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini
 
 #
+# `mysqld_safe` patch
+# @see https://github.com/wckr/wocker/pull/28#issuecomment-195945765
+#
+RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
+
+#
 # MariaDB settings & install WordPress
 #
-RUN mkdir -p ${DOCROOT}
+ENV WWW=/var/www
+ENV DOCROOT=${WWW}/wordpress
+RUN adduser --uid 1000 --gecos '' --disabled-password wocker \
+  && mkdir -p ${DOCROOT}
 ADD wp-cli.yml ${WWW}
 WORKDIR ${DOCROOT}
 RUN sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf \
@@ -88,5 +89,5 @@ RUN sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.con
     --dbname=wordpress \
     --dbuser=wordpress \
     --dbpass=wordpress \
-    --dbhost=localhost
-RUN chown -R wocker:wocker ${DOCROOT}
+    --dbhost=localhost \
+  && chown -R wocker:wocker ${DOCROOT}
