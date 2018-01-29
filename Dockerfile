@@ -14,15 +14,6 @@ RUN apt-get update \
     mysql-client \
     nano \
     openssh-client \
-    php7.0 \
-    php7.0-bz \
-    php7.0-cli \
-    php7.0-curl \
-    php7.0-gd \
-    php7.0-mbstring \
-    php7.0-mysql \
-    php7.0-xdebug \
-    php7.0-xml \
     sshpass \
     supervisor \
   && rm -rf /var/lib/apt/lists/*
@@ -71,23 +62,11 @@ ADD xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini
 RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
 
 #
-# MariaDB settings & install WordPress
+# Creating document root directory, adding wocker user, and MariaDB settings
 #
 ENV WWW=/var/www
 ENV DOCROOT=${WWW}/wordpress
-RUN adduser --uid 1000 --gecos '' --disabled-password wocker \
-  && mkdir -p ${DOCROOT}
 ADD wp-cli.yml ${WWW}
-WORKDIR ${DOCROOT}
-RUN sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf \
-  && service mysql start \
-  && mysqladmin -u root password root \
-  && mysql -uroot -proot -e \
-    "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8; grant all privileges on wordpress.* to wordpress@'%' identified by 'wordpress';" \
-  && wp core download --allow-root \
-  && wp core config --allow-root \
-    --dbname=wordpress \
-    --dbuser=wordpress \
-    --dbpass=wordpress \
-    --dbhost=localhost \
-  && chown -R wocker:wocker ${DOCROOT}
+RUN mkdir -p ${DOCROOT} \
+  && adduser --uid 1000 --gecos '' --disabled-password wocker \
+  && sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
