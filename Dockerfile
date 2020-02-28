@@ -1,5 +1,5 @@
-FROM ruby:2.5.0-slim-stretch AS builder
-FROM debian:stretch-slim
+FROM ruby:2.7-slim-buster AS builder
+FROM debian:buster-slim
 
 MAINTAINER ixkaito <ixkaito@gmail.com>
 
@@ -11,8 +11,8 @@ RUN apt-get update \
     less \
     lftp \
     libyaml-0-2 \
-    mysql-client \
-    mysql-server \
+    mariadb-client \
+    mariadb-server \
     nano \
     openssh-client \
     sshpass \
@@ -54,13 +54,7 @@ RUN curl -o ${BIN}/mailhog -L https://github.com/mailhog/MailHog/releases/downlo
 #
 # Xdebug settings
 #
-ADD xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini
-
-#
-# `mysqld_safe` patch
-# @see https://github.com/wckr/wocker/pull/28#issuecomment-195945765
-#
-RUN sed -i -e 's/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1" ;;/file) cmd="$cmd >> "`shell_quote_string "$err_log"`" 2>\&1 \& wait" ;;/' /usr/bin/mysqld_safe
+ADD xdebug.ini /etc/php/7.3/cli/conf.d/20-xdebug.ini
 
 #
 # Setting lftp for wordmove via ftp
