@@ -1,7 +1,8 @@
 FROM ruby:2.7-slim-buster AS builder
 FROM debian:buster-slim
 
-MAINTAINER ixkaito <ixkaito@gmail.com>
+LABEL maintainer="ixkaito <ixkaito@gmail.com>"
+LABEL version="1.5.2"
 
 RUN apt-get update \
   && apt-get clean \
