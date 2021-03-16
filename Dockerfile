@@ -66,7 +66,7 @@ RUN echo "set ssl:verify-certificate no" >> ~/.lftp.rc
 # Creating document root directory, adding wocker user, and MariaDB settings
 #
 ENV WWW=/var/www
-ENV DOCROOT=${WWW}/html
+ENV DOCROOT=${WWW}/wordpress
 RUN mkdir -p ${DOCROOT}; \
   adduser --uid 1000 --gecos '' --disabled-password wocker; \
   sed -i -e "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
