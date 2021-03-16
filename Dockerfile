@@ -6,7 +6,7 @@ LABEL version="2.0"
 
 RUN apt-get update; \
   apt-get clean; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     less \
@@ -16,7 +16,8 @@ RUN apt-get update; \
     mariadb-server \
     nano \
     openssh-client \
-    sshpass; \
+    sshpass \
+  ; \
   rm -rf /var/lib/apt/lists/*
 
 ENV BIN=/usr/local/bin
